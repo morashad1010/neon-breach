@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NEON BREACH — Kestrel Yard</title>
+<style>
+  html,body{margin:0;height:100%;background:#05070d;overflow:hidden;font-family:"Segoe UI",system-ui,sans-serif;color:#e8f0ff}
+  #game{position:fixed;inset:0;display:block}
+  .hud{position:fixed;pointer-events:none;user-select:none}
+  #crosshair{left:50%;top:50%;transform:translate(-50%,-50%);width:26px;height:26px}
+  #crosshair .ch{position:absolute;background:#8fffb8;box-shadow:0 0 6px #8fffb8}
+  #ch-t{left:12px;top:0;width:3px;height:8px}#ch-b{left:12px;bottom:0;width:3px;height:8px}
+  #ch-l{left:0;top:12px;width:8px;height:3px}#ch-r{right:0;top:12px;width:8px;height:3px}
+  #ch-dot{left:12px;top:12px;width:2px;height:2px}
+  #hitmarker{left:50%;top:50%;transform:translate(-50%,-50%) rotate(45deg);width:18px;height:18px;opacity:0;transition:opacity .12s}
+  #hitmarker span{position:absolute;background:#ff5470}
+  #hm1{left:0;top:8px;width:7px;height:2px}#hm2{right:0;top:8px;width:7px;height:2px}
+  #hm3{left:8px;top:0;width:2px;height:7px}#hm4{left:8px;bottom:0;width:2px;height:7px}
+  #panel-bl{left:24px;bottom:20px;font-size:15px;line-height:1.5}
+  #panel-bl .big{font-size:30px;font-weight:800;letter-spacing:1px}
+  .bar{width:220px;height:8px;background:#1a2233;border-radius:4px;margin-top:4px;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:4px}
+  #hp-bar i{background:linear-gradient(90deg,#ff5470,#ff8a5c)}
+  #ap-bar i{background:linear-gradient(90deg,#59c2ff,#7dffb0)}
+  #panel-br{right:24px;bottom:20px;text-align:right;font-size:15px;line-height:1.5}
+  #panel-br .big{font-size:30px;font-weight:800;color:#ffd166}
+  #top-center{left:50%;top:14px;transform:translateX(-50%);text-align:center}
+  #score{font-size:26px;font-weight:800;letter-spacing:2px}
+  #score .you{color:#59c2ff}#score .foe{color:#ff5470}
+  #timer{font-size:20px;font-weight:700;color:#ffd166;margin-top:2px}
+  #round-label{font-size:12px;letter-spacing:3px;color:#9fb2d0;text-transform:uppercase}
+  #killfeed{right:24px;top:60px;text-align:right;font-size:13px;line-height:1.7;color:#c9d6ee}
+  #killfeed b.you{color:#59c2ff}#killfeed b.foe{color:#ff5470}
+  #banner{left:50%;top:34%;transform:translate(-50%,-50%);text-align:center;font-size:44px;font-weight:900;letter-spacing:4px;opacity:0;transition:opacity .3s;text-shadow:0 0 24px rgba(89,194,255,.8)}
+  #banner small{display:block;font-size:16px;font-weight:600;letter-spacing:2px;color:#c9d6ee;margin-top:8px}
+  #dmg{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(255,30,60,.45) 100%);opacity:0}
+  .menu{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(900px 500px at 50% 20%,rgba(30,50,90,.55),rgba(5,7,13,.92));pointer-events:auto;text-align:center}
+  .menu h1{font-size:64px;margin:0 0 6px;letter-spacing:6px;font-weight:900;background:linear-gradient(90deg,#59c2ff,#7dffb0,#ffd166);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .menu h2{font-size:15px;letter-spacing:4px;color:#9fb2d0;text-transform:uppercase;margin:0 0 26px;font-weight:600}
+  .menu .btn{pointer-events:auto;cursor:pointer;border:0;border-radius:10px;padding:14px 38px;font-size:19px;font-weight:800;letter-spacing:2px;color:#05070d;background:linear-gradient(90deg,#59c2ff,#7dffb0);margin:6px}
+  .menu .hint{color:#9fb2d0;font-size:13px;margin-top:22px;line-height:1.8}
+  .menu kbd{background:#1a2233;border:1px solid #33415e;border-radius:4px;padding:1px 7px;font-family:inherit;color:#e8f0ff}
+  #buy{display:none;max-width:860px;width:92%}
+  #buy h1{font-size:34px;margin-bottom:2px}
+  #buy .cols{display:flex;gap:18px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+  #buy .col{background:rgba(13,20,36,.85);border:1px solid #22304d;border-radius:12px;padding:12px 16px;min-width:180px;text-align:left}
+  #buy .col h3{margin:0 0 8px;font-size:13px;letter-spacing:2px;color:#ffd166;text-transform:uppercase}
+  #buy .item{display:flex;justify-content:space-between;gap:14px;padding:7px 9px;border-radius:8px;cursor:pointer;font-size:14px}
+  #buy .item:hover{background:#1c2a47}
+  #buy .item .price{color:#7dffb0;font-weight:700}
+  #buy .item.owned{opacity:.45;cursor:default}
+  #buy .money{font-size:20px;font-weight:800;color:#ffd166;margin-top:10px}
+  #buy .foot{margin-top:12px;color:#9fb2d0;font-size:13px}
+  #dead{display:none;background:radial-gradient(700px 400px at 50% 40%,rgba(120,10,30,.5),rgba(5,7,13,.94))}
+  #dead h1{background:linear-gradient(90deg,#ff5470,#ff8a5c);-webkit-background-clip:text;background-clip:text}
+  #chat-msg{left:50%;bottom:110px;transform:translateX(-50%);font-size:16px;color:#ffd166;font-weight:700;text-shadow:0 1px 6px #000}
+</style>
+<script type="importmap">{ "imports": { "three": "./vendor/three/three.module.min.js" } }</script>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div class="hud" id="crosshair"><span class="ch" id="ch-t"></span><span class="ch" id="ch-b"></span><span class="ch" id="ch-l"></span><span class="ch" id="ch-r"></span><span class="ch" id="ch-dot"></span></div>
+<div class="hud" id="hitmarker"><span id="hm1"></span><span id="hm2"></span><span id="hm3"></span><span id="hm4"></span></div>
+
+<div class="hud" id="panel-bl">
+  <div class="big" id="hp">100</div>
+  <div class="bar" id="hp-bar"><i style="width:100%"></i></div>
+  <div class="big" id="ap" style="font-size:20px;margin-top:6px">0</div>
+  <div class="bar" id="ap-bar"><i style="width:0%"></i></div>
+</div>
+
+<div class="hud" id="panel-br">
+  <div id="weapon-name" style="font-size:14px;letter-spacing:2px;color:#9fb2d0;text-transform:uppercase">—</div>
+  <div class="big" id="ammo">12 / 36</div>
+  <div id="money" style="color:#ffd166;font-weight:800;font-size:20px;margin-top:4px">$800</div>
+</div>
+
+<div class="hud" id="top-center">
+  <div id="round-label">Round 1</div>
+  <div id="score"><span class="you">0</span> : <span class="foe">0</span></div>
+  <div id="timer">1:45</div>
+</div>
+
+<div class="hud" id="killfeed"></div>
+<div class="hud" id="banner"></div>
+<div class="hud" id="chat-msg"></div>
+<div id="dmg"></div>
+
+<div class="menu" id="start-menu">
+  <h1>NEON BREACH</h1>
+  <h2>Kestrel Yard &middot; round-based tactical FPS &middot; you + 4 Kestrels vs 5 Vultures</h2>
+  <button class="btn" id="play-btn">DEPLOY</button>
+  <div class="hint">
+    <kbd>W A S D</kbd> move &middot; mouse look &middot; <kbd>LMB</kbd> fire &middot; <kbd>R</kbd> reload &middot; <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> weapons &middot; <kbd>G</kbd> grenade<br>
+    <kbd>Ctrl</kbd> crouch &middot; <kbd>Shift</kbd> walk &middot; <kbd>B</kbd> buy menu &middot; <kbd>E</kbd> plant / defuse &middot; <kbd>Tab</kbd> scoreboard<br>
+    Plant the charge at site A or B. First to 8 rounds wins. Accuracy beats speed — bloom punishes spraying.
+  </div>
+</div>
+
+<div class="menu" id="buy" style="display:none">
+  <h1>BUY MENU</h1>
+  <h2>spend your round money — press <kbd>B</kbd> or any key to close</h2>
+  <div class="cols" id="buy-cols"></div>
+  <div class="money" id="buy-money">$800</div>
+  <div class="foot">Round starts when the timer hits 0:00 or you press <kbd>Enter</kbd></div>
+</div>
+
+<div class="menu" id="dead">
+  <h1>YOU DIED</h1>
+  <h2 id="dead-sub">waiting for the round to end</h2>
+  <button class="btn" id="spectate-btn">SPECTATE</button>
+</div>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
