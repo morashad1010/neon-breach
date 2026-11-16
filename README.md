@@ -1,5 +1,10 @@
 # NEON BREACH — Kestrel Yard
 
+[![make.fun · threejs-fps-02](https://make.fun/badge/threejs-fps-02.svg)](https://make.fun/bounty/threejs-fps-02?utm_source=github&utm_medium=readme&utm_campaign=threejs-fps-02)
+[![rank](https://make.fun/badge/threejs-fps-02/morashad1010/neon-breach/rank.svg)](https://make.fun/bounty/threejs-fps-02/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=threejs-fps-02)
+[![reward](https://make.fun/badge/threejs-fps-02/morashad1010/neon-breach/reward.svg)](https://make.fun/bounty/threejs-fps-02?utm_source=github&utm_medium=readme&utm_campaign=threejs-fps-02)
+
+
 A complete, original round-based tactical FPS that runs entirely in the browser
 (three.js, no build step). You + 4 AI teammates (Kestrels) vs 5 AI enemies (Vultures)
 on a night-time container yard. Plant the charge at site A or B; first to 8 rounds wins.
